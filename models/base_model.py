@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+"""Defines the BaseModel class."""
+import models
+from uuid import uuid4
+from datetime import datetime
+
+
+class BaseModel:
+    """Represents the BaseModel of the HBnB project."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a new BaseModel.
+        Args:
+            *args (any): Unused.
+            **kwargs (dict): Key/value pairs of attributes.
+        """
+        time_t = "%Y-%m-%dT%H:%M:%S.%f"
+        self.id = str(uuid4())
+        self.created_at = datetime.today()
+        self.updated_at = datetime.today()
+        if len(kwargs) != 0:
+            for key1, val1 in kwargs.items():
+                if key1 == "created_at" or key1 == "updated_at":
+                    self.__dict__[key1] = datetime.strptime(val1, time_t)
+                else:
+                    self.__dict__[key1] = val1
+        else:
+            models.storage.new(self)
+
+    def save(self):
+        """Update updated_at with the current datetime."""
+        self.updated_at = datetime.today()
+        models.storage.save()
+
+    def to_dict(self):
+        """Return the dictionary of the BaseModel instance.
+        Includes the key/value pair __class__ representing
+        the class name of the object.
+        """
+        nw_dict1 = self.__dict__.copy()
+        nw_dict1["created_at"] = self.created_at.isoformat()
+        nw_dict1["updated_at"] = self.updated_at.isoformat()
+        nw_dict1["__class__"] = self.__class__.__name__
+        return nw_dict1
+
+    def __str__(self):
+        """Return the print/str representation of the BaseModel instance."""
+        cl_name1 = self.__class__.__name__
+        return "[{}] ({}) {}".format(cl_name1, self.id, self.__dict__)
